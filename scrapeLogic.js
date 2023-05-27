@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer");
 require("dotenv").config();
 
-const scrapeLogic = async (res) => {
+const scrapeLogic = async (res, req) => {
   const browser = await puppeteer.launch({
     args: [
       "--disable-setuid-sandbox",
@@ -16,9 +16,14 @@ const scrapeLogic = async (res) => {
   });
   try {
     const page = await browser.newPage();
+    if (req.query?.url)
+      page.goto(req.query.url)
+    else if (req.query.html)
+      page.setContent(req.query.html)
+    else
+      await page.setContent('test')
 
     // await page.goto("https://developer.chrome.com/");
-    await page.setContent('test')
 
     const pdf = await page.pdf({
       path: "output.pdf",
