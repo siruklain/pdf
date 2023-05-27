@@ -7,6 +7,9 @@ const PORT = process.env.PORT || 4000;
 app.get("/scrape", (req, res) => {
   scrapeLogic(req, res);
 });
+app.post("/scrape", (req, res) => {
+  scrapeLogic(req, res);
+});
 
 app.get("/", (req, res) => {
   res.send("Render Puppeteer server is up and running!");

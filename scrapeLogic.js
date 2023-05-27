@@ -14,59 +14,27 @@ const scrapeLogic = async (req, res) => {
         ? process.env.PUPPETEER_EXECUTABLE_PATH
         : puppeteer.executablePath(),
   });
+
   try {
+
     const page = await browser.newPage();
-    if (req.query?.url)
-      page.goto(req.query.url)
-    else if (req.query.html)
-      page.setContent(req.query.html)
-    else
-      await page.setContent('test')
+    const req_html = req.query.html
+    console.log('request html is: ', req_html);
 
-    // await page.goto("https://developer.chrome.com/");
+    await page.setContent(req_html ?? 'damn');
 
-    const pdf = await page.pdf({
-      path: "output.pdf",
-      format: "A4",
-      printBackground: true,
-      encoding: "base64"
-    });
+    const pdfBuffer = await page.pdf();
 
-    res.set({
-      // 'Content-Disposition': 'attachment; filename="output.pdf"',
-      "Content-Type": "application/pdf",
-      "Content-Length": pdf.length
-    });
-
-
-    res.send(pdf);
-    // Set screen size
-    // await page.setViewport({ width: 1080, height: 1024 });
-
-    // // Type into search box
-    // await page.type(".search-box__input", "automate beyond recorder");
-
-    // // Wait and click on first result
-    // const searchResultSelector = ".search-box__link";
-    // await page.waitForSelector(searchResultSelector);
-    // await page.click(searchResultSelector);
-
-    // // Locate the full title with a unique string
-    // const textSelector = await page.waitForSelector(
-    //   "text/Customize and automate"
-    // );
-    // const fullTitle = await textSelector.evaluate((el) => el.textContent);
-
-    // // Print the full title
-    // const logStatement = `The title of this blog post is ${fullTitle}`;
-    console.log(logStatement);
-    res.send(logStatement);
-  } catch (e) {
-    console.error(e);
-    res.send(`Something went wrong while running Puppeteer: ${e}`);
-  } finally {
+    await page.close();
     await browser.close();
+
+    res.contentType('application/pdf')
+    res.send(pdfBuffer)
+  } catch (error) {
+    console.log('error is: ', error.message)
   }
+
+  return;
 };
 
 module.exports = { scrapeLogic };
